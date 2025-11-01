@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>3D Bracket Configurator</title>
+    <script src="https://cdn.babylonjs.com/babylon.js"></script>
+    <script src="https://cdn.babylonjs.com/gui/babylon.gui.min.js"></script>
+  </head>
+
+  <body style="margin:0; overflow:hidden;">
+    <canvas id="renderCanvas" style="width:100vw; height:100vh;"></canvas>
+
+    <script>
+      // --- Setup Babylon scene ---
+      const canvas = document.getElementById("renderCanvas");
+      const engine = new BABYLON.Engine(canvas, true);
+      const scene = new BABYLON.Scene(engine);
+
+      // Camera & Light
+      const camera = new BABYLON.ArcRotateCamera("cam", Math.PI / 4, Math.PI / 4, 8, BABYLON.Vector3.Zero(), scene);
+      camera.attachControl(canvas, true);
+      const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
+      light.intensity = 0.8;
+
+      // --- Create the bracket model (simple L-shape) ---
+      function makeBracket(width, height, thickness) {
+        // Clear previous meshes
+        scene.meshes.forEach(m => { if (m.name.startsWith("bracket")) m.dispose(); });
+
+        const mat = new BABYLON.StandardMaterial("bracketMat", scene);
+        mat.diffuseColor = currentColor;
+
+        // Two boxes forming an L
+        const base = BABYLON.MeshBuilder.CreateBox("bracket_base", { width, height: thickness, depth: thickness }, scene);
+        const vertical = BABYLON.MeshBuilder.CreateBox("bracket_vertical", { width: thickness, height, depth: thickness }, scene);
+
+        vertical.position.y = height / 2 - thickness / 2;
+        vertical.position.x = -width / 2 + thickness / 2;
+
+        const bracket = BABYLON.Mesh.MergeMeshes([base, vertical], true, false, null, false, true);
+        bracket.name = "bracket";
+        bracket.material = mat;
